@@ -1,6 +1,8 @@
+import styles from './styles.module.css';
+
 const RequestOutput = ({ output }: any) => {
   return (
-    <pre>{output}</pre>
+    <pre className={styles.output}>{output}</pre>
   )
 }
 

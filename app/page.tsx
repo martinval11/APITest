@@ -1,16 +1,16 @@
+import Nav from './components/Nav/Nav';
 import RequestForm from './components/RequestForm/Index';
+import styles from './page.module.css';
 
 const Home = () => {
   return (
     <>
-      <header>
-        <h1>HTTPX</h1>
-        <p>HTTP request maker</p>
-      </header>
-
-      <section>
-        <RequestForm />
-      </section>
+      <Nav />
+      <main className={styles.container}>
+        <section>
+          <RequestForm />
+        </section>
+      </main>
     </>
   );
 };

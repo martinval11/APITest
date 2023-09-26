@@ -1,0 +1,140 @@
+.form {
+  display: flex;
+}
+
+.form input,
+.form select {
+  background: #141414;
+  color: #ecf4f3;
+  padding: 7px;
+  border: 1px solid #444;
+  outline: none;
+}
+
+.form select {
+  border-radius: 3px 0 0 3px;
+}
+
+.form input {
+  border-radius: 0 3px 3px 0;
+  border-left: 0;
+}
+
+.urlInput {
+  width: 100%;
+  min-width: 350px;
+  max-width: 400px;
+}
+
+.sendRequestButton {
+  background: #14cc7e !important;
+  margin-left: 8px;
+  border-radius: 3px !important;
+  padding: 7px 12px !important;
+  cursor: pointer;
+  border: none !important;
+}
+
+.formContainer details {
+  padding: 10px 0;
+  outline: none;
+}
+
+.formContainer details div, .formContainer details header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+} 
+
+.formContainer details header {
+  margin-bottom: 10px;
+}
+
+.formContainer details input {
+  width: 100%;
+  outline: none;
+  background: #0F0F0F;
+  color: #ecf4f3;
+  padding: 7px;
+  border: 1px solid #444;
+}
+
+.addParamButton {
+  background: #14cc7e;
+  color: #FFF;
+  margin-left: 8px;
+  border-radius: 3px;
+  padding: 7px 12px;
+  cursor: pointer;
+  border: none;
+}
+
+.bodyRequest {
+  min-width: 100%;
+  max-width: 100%;
+  resize: none;
+  outline: none;
+  background: #141414;
+  color: #fff;
+  padding: 7px;
+  border-radius: 3px;
+  border: 1px solid #444;
+  margin-top: 10px;
+}
+
+.loader {
+  margin-top: 15px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+  border: 3px solid;
+  border-color: #fff #fff transparent transparent;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+.loader::after,
+.loader::before {
+  content: '';
+  box-sizing: border-box;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  border: 3px solid;
+  border-color: transparent transparent #14cc7e #14cc7e;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  box-sizing: border-box;
+  animation: rotationBack 0.5s linear infinite;
+  transform-origin: center center;
+}
+.loader::before {
+  width: 32px;
+  height: 32px;
+  border-color: #fff #fff transparent transparent;
+  animation: rotation 1.5s linear infinite;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes rotationBack {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(-360deg);
+  }
+}
