@@ -35,23 +35,23 @@
   border: none !important;
 }
 
-.formContainer details {
+.details, .monacoDetailsContainer {
   padding: 10px 0;
   outline: none;
 }
 
-.formContainer details div, .formContainer details header {
+.details div, .details header {
   width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
 } 
 
-.formContainer details header {
+.details header {
   margin-bottom: 10px;
 }
 
-.formContainer details input {
+.details input {
   width: 100%;
   outline: none;
   background: #0F0F0F;

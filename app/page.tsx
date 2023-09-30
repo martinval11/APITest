@@ -7,7 +7,7 @@ const Home = () => {
     <>
       <Nav />
       <main className={styles.container}>
-        <section>
+        <section className={styles.section}>
           <RequestForm />
         </section>
       </main>
