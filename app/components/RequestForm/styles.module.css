@@ -68,6 +68,9 @@
   padding: 7px 12px;
   cursor: pointer;
   border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .bodyRequest {
@@ -81,6 +84,10 @@
   border-radius: 3px;
   border: 1px solid #444;
   margin-top: 10px;
+}
+
+.loaderContainer {
+  text-align: center;
 }
 
 .loader {

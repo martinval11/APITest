@@ -10,5 +10,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-width: 90%;
+  max-width: 500px;
+}
+
+.section div {
+  max-width: 100%;
 }

@@ -1,47 +1,34 @@
 'use client';
 
 import { FormEvent, useRef, useState } from 'react';
-import Editor, { DiffEditor, useMonaco, loader } from '@monaco-editor/react';
-import { Toaster, toast } from 'sonner';
+import Editor from '@monaco-editor/react';
 
 import RequestOutput from '../RequestOutput/Index';
-import request from '@/app/lib/request';
+import { req } from '@/app/lib/reqFrontend';
 
 import styles from './styles.module.css';
+import DelIcon from '../DelIcon';
 
 const RequestForm = () => {
   const [method, setMethod] = useState('GET');
-  const [output, setOutput] = useState('');
+  const [output, setOutput]: any = useState('');
   const [loading, setLoading] = useState(false);
 
   // Params
-  //const [params, setParams]: any = useState([]);
-  const paramName = useRef<HTMLInputElement>(null);
-  const paramValue = useRef<HTMLInputElement>(null);
+  const [params, setParams]: any = useState([]);
+  const paramName: any = useRef<HTMLInputElement>(null);
+  const paramValue: any = useRef<HTMLInputElement>(null);
 
   // Body
   const bodyRef: any = useRef<HTMLTextAreaElement>(null);
 
   // Headers
   const [headers, setHeaders]: any = useState([]);
+  const [headerList, setHeaderList]: any = useState([]);
   const headerName: any = useRef<HTMLInputElement>(null);
   const headerValue: any = useRef<HTMLInputElement>(null);
 
   const urlRef: any = useRef<HTMLInputElement>(null);
-
-  async function req(url: string, method: string) {
-    try {
-      const data = JSON.parse(bodyRef.current?.value || null);
-      const response: any = await request(url, {
-        method: method,
-        headers: { ...(headers || undefined) },
-        body: JSON.stringify(data || undefined),
-      });
-      setOutput(response);
-    } catch (error) {
-      alert('Invalid Request');
-    }
-  }
 
   const doRequest = async (event: FormEvent) => {
     event.preventDefault();
@@ -55,142 +42,202 @@ const RequestForm = () => {
       });
     }
 
-    switch (method) {
-      case 'GET':
-        req(urlRef.current?.value, 'GET');
-        break;
-      case 'POST':
-        req(urlRef.current?.value, 'POST');
-        break;
-      case 'PUT':
-        req(urlRef.current?.value, 'PUT');
-        break;
-      case 'DELETE':
-        req(urlRef.current?.value, 'DELETE');
-        break;
-      case 'PATCH':
-        req(urlRef.current?.value, 'PATCH');
-        break;
-      default:
-        toast.error('Request type error');
-        break;
+    const currentUrl = urlRef.current.value;
+    const body = bodyRef.current?.value;
+
+    const response = await req(currentUrl, method, headers, body);
+    try {
+      const formattedResponse = JSON.stringify(
+        JSON.parse(response),
+        undefined,
+        2
+      );
+      setOutput(formattedResponse);
+    } catch {
+      setOutput(response);
     }
+
     setLoading(false);
   };
 
   const addHeader = () => {
-    setHeaders({
-      ...headers,
-      [headerName.current?.value]: headerValue.current?.value,
-    });
-    toast.success('Header added!');
+    setHeaderList([
+      ...headerList,
+      { [headerName.current?.value]: headerValue.current?.value },
+    ]);
   };
 
   const addParams = () => {
-    if (urlRef.current.value.includes('?')) {
-      urlRef.current.value = urlRef.current?.value.concat(
-        `&${paramName.current?.value}=${paramValue.current?.value}`
-      );
-      toast.success('Param added!');
-      return;
-    }
-    urlRef.current.value = urlRef.current?.value.concat(
-      `?${paramName.current?.value}=${paramValue.current?.value}`
-    );
-    toast.success('Param added!');
+    setParams([
+      ...params,
+      { [paramName.current?.value]: paramValue.current?.value },
+    ]);
   };
 
-  const handleEditorDidMount = (editor: any, monaco: any) => {
-    // here is the editor instance
-    // you can store it in `useRef` for further usage
+  const handleEditorDidMount = (editor: any) => {
     bodyRef.current = editor;
   };
 
   return (
-    <>
-      <Toaster richColors />
-      <div className={styles.formContainer}>
-        <form className={styles.form} onSubmit={doRequest}>
-          <select
-            name="method"
-            value={method}
-            onChange={(event) => setMethod(event.target.value)}
-          >
-            <option value="GET">GET</option>
-            <option value="POST">POST</option>
-            <option value="PUT">PUT</option>
-            <option value="DELETE">DELETE</option>
-            <option value="PATCH">PATCH</option>
-          </select>
+    <div className={styles.formContainer}>
+      <form className={styles.form} onSubmit={doRequest}>
+        <select
+          name="method"
+          value={method}
+          onChange={(event) => setMethod(event.target.value)}
+        >
+          <option value="GET">GET</option>
+          <option value="POST">POST</option>
+          <option value="PUT">PUT</option>
+          <option value="DELETE">DELETE</option>
+          <option value="PATCH">PATCH</option>
+        </select>
 
-          <input
-            type="url"
-            name="send request"
-            placeholder="URL"
-            className={styles.urlInput}
-            ref={urlRef}
-            required
-          />
+        <input
+          type="url"
+          name="send request"
+          placeholder="URL"
+          className={styles.urlInput}
+          ref={urlRef}
+          required
+        />
 
-          <input
-            type="submit"
-            value="Send"
-            className={styles.sendRequestButton}
-          />
-        </form>
+        <input
+          type="submit"
+          value="Send"
+          className={styles.sendRequestButton}
+        />
+      </form>
 
-        <details className={styles.details}>
-          <summary>Parameters</summary>
-          <header>
-            <small>Query Parameters</small>
-            <button className={styles.addParamButton} onClick={addParams}>
-              Add Parameter
+      <details className={styles.details}>
+        <summary>Parameters</summary>
+        <header>
+          <small>Query Parameters</small>
+          <button className={styles.addParamButton} onClick={addParams}>
+            Add Parameter
+          </button>
+        </header>
+
+        {params.map((index: number) => (
+          <div key={index}>
+            <input
+              type="text"
+              placeholder="Parameter Name"
+              ref={paramName}
+              className={urlRef.current?.value}
+              onChange={(event) => {
+                // cache the url
+                let url = event.target.className;
+                if (url.includes('?')) {
+                  url = url.concat('&');
+                  urlRef.current.value = `${url}${paramName.current?.value}`;
+                  return
+                }
+                url = url.concat('?');
+                console.log('url:', url);
+                urlRef.current.value = `${url}${paramName.current?.value}`;
+              }}
+            />
+            <input
+              type="text"
+              placeholder="Value"
+              ref={paramValue}
+              className={urlRef.current.value}
+              onChange={(event) => {
+                // cache the url
+                let url = event.target.className
+                if (url.includes('?')) {
+                  url = url.concat('&');
+                  urlRef.current.value = `${url}${paramName.current?.value}=${paramValue.current?.value}`;
+                  return
+                }
+                url = url.concat('?');
+                console.log('url:', url);
+                urlRef.current.value = `${url}${paramName.current?.value}=${paramValue.current?.value}`;
+              }}
+            />
+            <button
+              className={styles.addParamButton}
+              onClick={() => {
+                setParams(params.filter((item: any) => item !== index));
+              }}
+            >
+              <DelIcon />
             </button>
-          </header>
-
-          <div>
-            <input type="text" placeholder="Parameter Name" ref={paramName} />
-            <input type="text" placeholder="Value" ref={paramValue} />
           </div>
-        </details>
-        <details className={styles.monacoDetailsContainer}>
-          <summary>Body</summary>
-          <Editor
-            width="100%"
-            height="250px"
-            defaultLanguage="json"
-            onMount={handleEditorDidMount}
-            theme="vs-dark"
-            value={bodyRef.current?.value || null}
-            onChange={(value) => {
-              bodyRef.current.value = value;
-            }}
-            options={{
-              minimap: { enabled: false },
-              tabSize: 2,
-            }}
-          />
-        </details>
+        ))}
+      </details>
+      <details className={styles.monacoDetailsContainer}>
+        <summary>Body</summary>
+        <Editor
+          width="100%"
+          height="250px"
+          defaultLanguage="json"
+          onMount={handleEditorDidMount}
+          theme="vs-dark"
+          value={bodyRef.current?.value || null}
+          onChange={(value) => {
+            bodyRef.current.value = value;
+          }}
+          options={{
+            minimap: { enabled: false },
+            tabSize: 2,
+          }}
+        />
+      </details>
 
-        <details className={styles.details}>
-          <summary>Headers</summary>
-          <header>
-            <small>Header List</small>
-            <button className={styles.addParamButton} onClick={addHeader}>
-              Add Header
+      <details className={styles.details}>
+        <summary>Headers</summary>
+        <header>
+          <small>Header List</small>
+          <button className={styles.addParamButton} onClick={addHeader}>
+            Add Header
+          </button>
+        </header>
+
+        {headerList.map((index: number) => (
+          <div key={index}>
+            <input
+              type="text"
+              placeholder="Header Name"
+              ref={headerName}
+              onBlur={() => {
+                setHeaders([
+                  ...headers,
+                  { [headerName.current?.value]: headerValue.current?.value },
+                ]);
+              }}
+            />
+            <input
+              type="text"
+              placeholder="Value"
+              ref={headerValue}
+              id={urlRef.current.value}
+              onBlur={() => {
+                setHeaders([
+                  ...headers,
+                  { [headerName.current?.value]: headerValue.current?.value },
+                ]);
+              }}
+            />
+            <button
+              className={styles.addParamButton}
+              onClick={() => {
+                setHeaderList(headerList.filter((item: any) => item !== index));
+                setHeaders([headers].filter((item: any) => item !== index));
+              }}
+            >
+              <DelIcon />
             </button>
-          </header>
-
-          <div>
-            <input type="text" placeholder="Header Name" ref={headerName} />
-            <input type="text" placeholder="Value" ref={headerValue} />
           </div>
-        </details>
+        ))}
+      </details>
+      <div className={styles.loaderContainer}>
+        {loading && <span className={styles.loader}></span>}
       </div>
 
-      {loading && <span className={styles.loader}></span>}
       {output && <RequestOutput output={output} />}
-    </>
+    </div>
   );
 };
 
