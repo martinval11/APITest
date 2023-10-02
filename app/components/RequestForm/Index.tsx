@@ -6,6 +6,7 @@ import { Toaster, toast } from 'sonner';
 
 import RequestOutput from '../RequestOutput/Index';
 import request from '@/app/lib/request';
+import { req } from '@/app/lib/reqFrontend';
 
 import styles from './styles.module.css';
 
@@ -29,20 +30,6 @@ const RequestForm = () => {
 
   const urlRef: any = useRef<HTMLInputElement>(null);
 
-  async function req(url: string, method: string) {
-    try {
-      const data = JSON.parse(bodyRef.current?.value || null);
-      const response: any = await request(url, {
-        method: method,
-        headers: { ...(headers || undefined) },
-        body: JSON.stringify(data || undefined),
-      });
-      setOutput(response);
-    } catch (error) {
-      alert('Invalid Request');
-    }
-  }
-
   const doRequest = async (event: FormEvent) => {
     event.preventDefault();
     setLoading(true);
@@ -55,26 +42,21 @@ const RequestForm = () => {
       });
     }
 
-    switch (method) {
-      case 'GET':
-        req(urlRef.current?.value, 'GET');
-        break;
-      case 'POST':
-        req(urlRef.current?.value, 'POST');
-        break;
-      case 'PUT':
-        req(urlRef.current?.value, 'PUT');
-        break;
-      case 'DELETE':
-        req(urlRef.current?.value, 'DELETE');
-        break;
-      case 'PATCH':
-        req(urlRef.current?.value, 'PATCH');
-        break;
-      default:
-        toast.error('Request type error');
-        break;
+    const currentUrl = urlRef.current.value;
+    const body = bodyRef.current?.value;
+
+    const response = await req(currentUrl, method, headers, body);
+    try {
+      const formattedResponse = JSON.stringify(
+        JSON.parse(response),
+        undefined,
+        2
+      );
+      setOutput(formattedResponse);
+    } catch {
+      setOutput(response);
     }
+
     setLoading(false);
   };
 
